@@ -1,0 +1,87 @@
+---
+title: "Project Title TBD"
+author: "Andrew Olson"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: row
+    vertical_layout: fill
+    theme: sandstone
+    favicon: favicon.ico
+---
+
+```{r setup, include=FALSE}
+#loading libraries used
+library(flexdashboard)
+library(shiny)
+library(reshape2)
+library(dplyr)
+library(plotly)
+
+#loading data to be used
+
+pdf(NULL)
+
+```
+
+Sidebar {.sidebar}
+=====================================
+
+```{r}
+
+```
+
+Plot
+=====================================
+
+Row 
+-------------------------------------
+
+### 
+
+```{r}
+#valuebox 1
+```
+
+
+###
+
+```{r}
+#valuebox2
+```
+
+### 
+
+```{r}
+#valuebox3
+```
+
+### Graph 1
+
+```{r}
+#plot 1
+```
+
+### Graph 2
+
+```{r}
+#plot 2
+```
+
+### Graph 3
+
+```{r}
+#plot 2
+```
+
+Table
+=====================================
+
+Row 
+-------------------------------------
+
+### Table 
+
+```{r}
+
+```
