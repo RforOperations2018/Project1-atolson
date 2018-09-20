@@ -6,7 +6,7 @@ output:
   flexdashboard::flex_dashboard:
     orientation: row
     vertical_layout: fill
-    theme: sandstone
+    theme: cosmo
     favicon: favicon.ico
 ---
 
@@ -19,7 +19,7 @@ library(dplyr)
 library(plotly)
 
 #loading data to be used
-jail.dirty <- read.csv(file="9-18_Jail_Census.csv", header = TRUE, sep = ",")
+jail.dirty <- read.csv(file="August_Jail_Census.csv", header = TRUE, sep = ",")
 
 #recoding race and gender to be more descriptive
 jail.load <- jail.dirty %>% mutate(Race = recode(Race, "B" = "Black",
@@ -39,14 +39,34 @@ Sidebar {.sidebar}
 
 ```{r}
 #Race Selecter
-selectInput("Race",
+selectInput("RaceSelect",
                "Race:",
                choices = sort(unique(jail.load$Race)),
                multiple = TRUE,
                selectize = TRUE,
                selected = c("Black", "White", "Hispanic"))
-
-
+#Booking Age Selecter
+sliderInput("BookingAgeSelect",
+               "Age at Booking:",
+               min = min(jail.load$Age.at.Booking, na.rm = T),
+               max = max(jail.load$Age.at.Booking, na.rm = T),
+               value = c(min(jail.load$Age.at.Booking, na.rm = T), max(jail.load$Age.at.Booking, na.rm = T)),
+               step = 1)
+#Current Age Selecter
+sliderInput("BookingAgeSelect",
+               "Age at Booking:",
+               min = min(jail.load$Current.Age, na.rm = T),
+               max = max(jail.load$Current.Age, na.rm = T),
+               value = c(min(jail.load$Current.Age, na.rm = T), max(jail.load$Current.Age, na.rm = T)),
+               step = 1)
+#Date Selecter
+dateRangeInput("DateSelect",
+               "Date range:",
+               start = "8/6/2018",
+               end = "8/21/2018",
+               min = "8/6/2018",
+               max = "8/31/2018",
+               format = "mm/dd/yyyy")
 ```
 
 Plot
