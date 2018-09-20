@@ -19,6 +19,16 @@ library(dplyr)
 library(plotly)
 
 #loading data to be used
+jail.dirty <- read.csv(file="9-18_Jail_Census.csv", header = TRUE, sep = ",")
+
+#recoding race and gender to be more descriptive
+jail.load <- jail.dirty %>% mutate(Race = recode(Race, "B" = "Black",
+                                  "A" = "Asian",
+                                  "H" = "Hispanic",
+                                  "W" = "White",
+                                  "I" = "American Indian",
+                                  "U" = "Unknown"),
+                    Gender = recode(Gender, "M" = "Male", "F" = "Female"))
 
 pdf(NULL)
 
@@ -28,6 +38,14 @@ Sidebar {.sidebar}
 =====================================
 
 ```{r}
+#Race Selecter
+selectInput("Race",
+               "Race:",
+               choices = sort(unique(jail.load$Race)),
+               multiple = TRUE,
+               selectize = TRUE,
+               selected = c("Black", "White", "Hispanic"))
+
 
 ```
 
