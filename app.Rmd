@@ -21,6 +21,8 @@ library(plotly)
 #loading data to be used
 jail.dirty <- read.csv(file="August_Jail_Census.csv", header = TRUE, sep = ",")
 
+pdf(NULL)
+
 #recoding race and gender to be more descriptive
 jail.load <- jail.dirty %>% mutate(Race = recode(Race, "B" = "Black",
                                   "A" = "Asian",
@@ -30,7 +32,22 @@ jail.load <- jail.dirty %>% mutate(Race = recode(Race, "B" = "Black",
                                   "U" = "Unknown"),
                     Gender = recode(Gender, "M" = "Male", "F" = "Female"))
 
-pdf(NULL)
+jaInput <- reactive({
+  jail <- jail.load %>%
+    filter(
+      # Age Filter
+      (Current.Age >= input$AgeSelect[1] & Current.Age <= input$AgeSelect[2]) &
+      # Date Filter
+      (Date >= input$DateSelect[1] & Date <= input$DateSelect[2])  &
+      # Booking Age Filter
+      (Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2]))
+  # Race Filter
+  if (length(input$RaceSelect) > 0 ) {
+    jail <- subset(jail, Race %in% input$RaceSelect)
+  }
+  
+  return(jail)
+})
 
 ```
 
@@ -53,8 +70,8 @@ sliderInput("BookingAgeSelect",
                value = c(min(jail.load$Age.at.Booking, na.rm = T), max(jail.load$Age.at.Booking, na.rm = T)),
                step = 1)
 #Current Age Selecter
-sliderInput("BookingAgeSelect",
-               "Age at Booking:",
+sliderInput("AgeSelect",
+               "Current Age:",
                min = min(jail.load$Current.Age, na.rm = T),
                max = max(jail.load$Current.Age, na.rm = T),
                value = c(min(jail.load$Current.Age, na.rm = T), max(jail.load$Current.Age, na.rm = T)),
@@ -78,14 +95,23 @@ Row
 ### 
 
 ```{r}
-#valuebox 1
+#Average Age at booking value box
+renderValueBox({
+  ja <- jail.load
+  num <- round(mean(ja$Age.at.Booking, na.rm = T), 0)
+  valueBox("Avg Age at Booking", value = num, color = "purple")
+})
 ```
 
 
-###
+### % Men in Jail
 
 ```{r}
-#valuebox2
+renderGauge({
+  rate <- round((sum(jail.load$Gender == "Male")) / length(jail.load$Gender) * 100, 1)
+  gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
+  success = c(70, 100), warning = c(40, 69), danger = c(0, 30), colors = c("aqua", "green", "fuchsia")))
+})
 ```
 
 ### 
@@ -94,10 +120,20 @@ Row
 #valuebox3
 ```
 
+Row {.tabset .tabset-fade}
+-------------------------------------
+
 ### Graph 1
 
 ```{r}
 #plot 1
+renderPlotly({
+    dat <- jaInput()
+    ggplot(data = dat, aes(x = Age.at.Booking, y = Race, fill = Race)) + 
+        geom_point()+
+        labs(x = "Age.at.Booking", y = "Race", title = "graph 1") +
+        guides(color = FALSE)
+  })
 ```
 
 ### Graph 2
