@@ -45,17 +45,21 @@ jaInput <- reactive({
   if (length(input$RaceSelect) > 0 ) {
     jail2 <- subset(jail2, Race %in% input$RaceSelect)
   }
+  if (length(input$GenderSelect) > 0 ) {
+      jail2 <- subset(jail2, Gender %in% input$GenderSelect)
+  }
   
   return(jail2)
 })
 
 #Reset filters
-#observeEvent(input$reset, {
-#    updateSelectInput(session, "RaceSelect", selected = c("North Oakland", "Squirrel Hill North", "Squirrel Hill South", "Allentown", "Arlington"))
-#    updateSliderInput(session, "BookingAgeSelect", value = c(min(jail.load$Age.at.Booking, na.rm = T), max(jail.load$Age.at.Booking, na.rm = T)))
-#    updateCheckboxGroupInput(session, "sectorSelect", choices = sort(unique(employ.load$Sector)), selected = NULL)
-#    showNotification("You have successfully reset the filters", type = "message")
-#  })
+observeEvent(input$reset, {
+    updateSelectInput(session, "RaceSelect", selected = c("Black", "White"))
+    updateSliderInput(session, "BookingAgeSelect", value = c(min(jail.load$Age.at.Booking, na.rm = T), max(jail.load$Age.at.Booking, na.rm = T)))
+    updateDateRangeInput(session, "DateSelect", start = "8/6/2018", end = "8/21/2018")
+    updateCheckboxGroupInput(session, "GenderSelect", choices = sort(unique(jail.load$Gender)), selected = sort(unique(jail.load$Gender)))
+    showNotification("You have successfully reset the filters", type = "message")
+  })
 ```
 
 Sidebar {.sidebar}
@@ -68,7 +72,7 @@ selectInput("RaceSelect",
                choices = sort(unique(jail.load$Race)),
                multiple = TRUE,
                selectize = TRUE,
-               selected = c("Black", "White", "Hispanic"))
+               selected = c("Black", "White"))
 #Booking Age Selecter
 sliderInput("BookingAgeSelect",
                "Age at Booking:",
@@ -76,6 +80,11 @@ sliderInput("BookingAgeSelect",
                max = max(jail.load$Age.at.Booking, na.rm = T),
                value = c(min(jail.load$Age.at.Booking, na.rm = T), max(jail.load$Age.at.Booking, na.rm = T)),
                step = 1)
+#Gender Selecter
+checkboxGroupInput("GenderSelect",
+                   "Gender:",
+                   choices = sort(unique(jail.load$Gender)),
+                   selected = sort(unique(jail.load$Gender)))
 #Date Selecter
 dateRangeInput("DateSelect",
                "Date range:",
@@ -111,7 +120,7 @@ renderValueBox({
 ```{r}
 #Guage of gender breakdown
 renderGauge({
-    ja <- jaInput()
+  ja <- jail.load
   rate <- round((sum(ja$Gender == "Male")) / length(ja$Gender) * 100, 1)
   gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
   success = c(70, 100), warning = c(40, 69), danger = c(0, 30), colors = c("aqua", "green", "fuchsia")))
@@ -122,7 +131,7 @@ renderGauge({
 
 ```{r}
 renderValueBox({
-  ja <- jaInput()
+  ja <- jail.load
   num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
   valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
 })
@@ -181,7 +190,7 @@ renderValueBox({
 ```{r}
 #Guage of gender breakdown
 renderGauge({
-    ja <- jaInput()
+  ja <- jail.load
   rate <- round((sum(ja$Gender == "Male")) / length(ja$Gender) * 100, 1)
   gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
   success = c(70, 100), warning = c(40, 69), danger = c(0, 30), colors = c("aqua", "green", "fuchsia")))
@@ -192,7 +201,7 @@ renderGauge({
 
 ```{r}
 renderValueBox({
-  ja <- jaInput()
+  ja <- jail.load
   num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
   valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
 })
@@ -253,7 +262,7 @@ renderValueBox({
 ```{r}
 #Guage of gender breakdown
 renderGauge({
-    ja <- jaInput()
+  ja <- jail.load
   rate <- round((sum(ja$Gender == "Male")) / length(ja$Gender) * 100, 1)
   gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
   success = c(70, 100), warning = c(40, 69), danger = c(0, 30), colors = c("aqua", "green", "fuchsia")))
@@ -264,7 +273,7 @@ renderGauge({
 
 ```{r}
 renderValueBox({
-  ja <- jaInput()
+  ja <- jail.load
   num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
   valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
 })
