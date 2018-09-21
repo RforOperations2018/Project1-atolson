@@ -31,21 +31,26 @@ jail.load <- jail.dirty %>% mutate(Race = recode(Race, "B" = "Black",
                                   "I" = "American Indian",
                                   "U" = "Unknown",
                                   "x" = NULL),
-                    Gender = recode(Gender, "M" = "Male", "F" = "Female"))
+                    Gender = recode(Gender, "M" = "Male", "F" = "Female"),
+                    Date = as.Date(Date),
+                    X_id = as.factor(X_id))
 
 jaInput <- reactive({
   # Age Filter
-  jail1 <- jail.load %>% filter(Current.Age >= input$AgeSelect[1] & Current.Age <= input$AgeSelect[2]) &
-  # Date Filter
-  jail2 <-  jail1 %>% filter(Date >= input$DateSelect[1] & Date <= input$DateSelect[2])  &
-    # Booking Age Filter
-  jail <- jail2 %>% filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
+  jail <- jail.load %>%
+    filter(Current.Age >= input$AgeSelect[1] & Current.Age <= input$AgeSelect[2])
+  #Date Filter
+  jail2 <- jail %>%
+    filter(Date >= input$DateSelect[1] & Date <= input$DateSelect[2])
+  # Booking Age Filter
+  jail3 <- jail2 %>% 
+    filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
   # Race Filter
   if (length(input$RaceSelect) > 0 ) {
-    jail <- subset(jail, Race %in% input$RaceSelect)
+    jail3 <- subset(jail3, Race %in% input$RaceSelect)
   }
   
-  return(jail)
+  return(jail3)
 })
 
 ```
@@ -96,7 +101,7 @@ Row
 ```{r}
 #Average Age at booking value box
 renderValueBox({
-  ja <- jail.load
+  ja <- jaInput()
   num <- round(mean(ja$Age.at.Booking, na.rm = T), 0)
   valueBox("Avg Age at Booking", value = num, color = "purple")
 })
@@ -108,7 +113,8 @@ renderValueBox({
 ```{r}
 #Guage of gender breakdown
 renderGauge({
-  rate <- round((sum(jail.load$Gender == "Male")) / length(jail.load$Gender) * 100, 1)
+    ja <- jaInput()
+  rate <- round((sum(ja$Gender == "Male")) / length(ja$Gender) * 100, 1)
   gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
   success = c(70, 100), warning = c(40, 69), danger = c(0, 30), colors = c("aqua", "green", "fuchsia")))
 })
@@ -118,9 +124,9 @@ renderGauge({
 
 ```{r}
 renderValueBox({
-  ja <- jail.load
-  num <- round(mean(ja$Current.Age, na.rm = T), 0)
-  valueBox("Avg Current Age", value = num, color = "green")
+  ja <- jaInput()
+  num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
+  valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
 })
 ```
 
@@ -131,13 +137,13 @@ Row {.tabset .tabset-fade}
 
 ```{r}
 #plot 1
-renderPlotly({
-    dat <- jaInput()
-    ggplot(data = dat, aes(x = Age.at.Booking, y = Race, fill = Race)) + 
-        geom_point()+
-        labs(x = "Age.at.Booking", y = "Race", title = "graph 1") +
-        guides(color = FALSE)
-  })
+#renderPlotly({
+#    dat <- jaInput()
+#    ggplot(data = dat, aes(x = Age.at.Booking, y = Race, fill = Race)) + 
+#        geom_point()+
+#        labs(x = "Age.at.Booking", y = "Race", title = "graph 1") +
+#        guides(color = FALSE)
+#  })
 ```
 
 ### Graph 2
