@@ -90,7 +90,7 @@ dateRangeInput("DateSelect",
                format = "mm/dd/yyyy")
 ```
 
-Plot
+General
 =====================================
 
 Row 
@@ -133,30 +133,157 @@ renderValueBox({
 Row {.tabset .tabset-fade}
 -------------------------------------
 
+### Daily Jail Census
+
+```{r}
+#Daily count
+renderPlotly({
+    dat <- jaInput()
+    ggplot(data = dat, aes(x = Date)) + 
+      geom_bar(position = "dodge", fill = "steelblue")+
+      labs(x = "Date", title = "Jail Census by Day") +
+      guides(color = FALSE)
+})
+
+```
+
 ### Age at Booking
 
 ```{r}
-#plot 1
+#plot of age at booking
 renderPlotly({
     dat <- jaInput()
-    ggplot(data = dat, aes(x = Age.at.Booking , fill = Race)) + 
-        geom_histogram()+
-        labs(x = "Age at Booking", title = "Age at Booking by Race") +
+    ggplot(data = dat, aes(x = Age.at.Booking)) + 
+        geom_histogram(fill = "forestgreen")+
+        labs(x = "Age at Booking", title = "Age at Booking") +
         guides(color = FALSE)
   })
 ```
 
-### Graph 2
+Race
+=====================================
+
+Row 
+-------------------------------------
+
+### 
 
 ```{r}
-#plot 2
-
+#Average Age at booking value box
+renderValueBox({
+  ja <- jaInput()
+  num <- round(mean(ja$Age.at.Booking, na.rm = T), 0)
+  valueBox("Avg Age at Booking", value = num, color = "purple")
+})
 ```
 
-### Graph 3
+
+### % Men in Jail
+
+```{r}
+#Guage of gender breakdown
+renderGauge({
+    ja <- jaInput()
+  rate <- round((sum(ja$Gender == "Male")) / length(ja$Gender) * 100, 1)
+  gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
+  success = c(70, 100), warning = c(40, 69), danger = c(0, 30), colors = c("aqua", "green", "fuchsia")))
+})
+```
+
+### 
+
+```{r}
+renderValueBox({
+  ja <- jaInput()
+  num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
+  valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
+})
+```
+
+Row 
+-------------------------------------
+
+
+### Age at Booking
+
+```{r}
+#plot of age at booking by race
+renderPlotly({
+    dat <- jaInput()
+    ggplot(data = dat, aes(x = Age.at.Booking , fill = Race)) + 
+        geom_histogram()+
+        labs(x = "Age at Booking", title = "Age at Booking per Race") +
+        guides(color = FALSE)
+  })
+```
+
+Gender
+=====================================
+
+Row 
+-------------------------------------
+
+### 
+
+```{r}
+#Average Age at booking value box
+renderValueBox({
+  ja <- jaInput()
+  num <- round(mean(ja$Age.at.Booking, na.rm = T), 0)
+  valueBox("Avg Age at Booking", value = num, color = "purple")
+})
+```
+
+
+### % Men in Jail
+
+```{r}
+#Guage of gender breakdown
+renderGauge({
+    ja <- jaInput()
+  rate <- round((sum(ja$Gender == "Male")) / length(ja$Gender) * 100, 1)
+  gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
+  success = c(70, 100), warning = c(40, 69), danger = c(0, 30), colors = c("aqua", "green", "fuchsia")))
+})
+```
+
+### 
+
+```{r}
+renderValueBox({
+  ja <- jaInput()
+  num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
+  valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
+})
+```
+
+Row 
+-------------------------------------
+
+### Age at Booking
 
 ```{r}
 #plot 2
+renderPlotly({
+    dat <- jaInput()
+    ggplot(data = dat, aes(x = Age.at.Booking)) + 
+        geom_area(stat = "bin", aes(fill = dat$Gender), position = position_stack(reverse = T))+
+        labs(x = "Age at Booking", title = "Age at Booking per Gender") +
+        guides(color = FALSE)
+})
+```
+
+### Age at Booking
+
+```{r}
+#plot 2
+renderPlotly({
+    dat <- jaInput()
+    ggplot(data = dat, aes(x = Age.at.Booking)) + 
+        geom_area(stat = "bin", aes(fill = dat$Gender), position = position_stack(reverse = T))+
+        labs(x = "Age at Booking", title = "Age at Booking per Gender") +
+        guides(color = FALSE)
+})
 ```
 
 Table
@@ -168,5 +295,7 @@ Row
 ### Table 
 
 ```{r}
-
+DT::renderDataTable({
+  subset(jaInput(), select = c(Date, Gender, Race, Age.at.Booking, Current.Age))
+})
 ```
