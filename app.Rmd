@@ -7,7 +7,6 @@ output:
     orientation: row
     vertical_layout: fill
     theme: cosmo
-    favicon: favicon.ico
 ---
 
 ```{r setup, include=FALSE}
@@ -30,29 +29,33 @@ jail.load <- jail.dirty %>% mutate(Race = factor(recode(Race, "B" = "Black",
                                   "A" = "Asian",
                                   "I" = "American Indian",
                                   "U" = "Unknown",
-                                  "x" = NULL), levels = c("Black", "White", "Hispanic")),
+                                  "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
                     Gender = recode(Gender, "M" = "Male", "F" = "Female"),
                     Date = as.Date(Date),
                     X_id = as.factor(X_id))
 
 jaInput <- reactive({
-  # Age Filter
-  jail <- jail.load %>%
-    filter(Current.Age >= input$AgeSelect[1] & Current.Age <= input$AgeSelect[2])
   #Date Filter
-  jail2 <- jail %>%
+  jail <- jail.load %>%
     filter(Date >= input$DateSelect[1] & Date <= input$DateSelect[2])
   # Booking Age Filter
-  jail3 <- jail2 %>% 
+  jail2 <- jail %>% 
     filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
   # Race Filter
   if (length(input$RaceSelect) > 0 ) {
-    jail3 <- subset(jail3, Race %in% input$RaceSelect)
+    jail2 <- subset(jail2, Race %in% input$RaceSelect)
   }
   
-  return(jail3)
+  return(jail2)
 })
 
+#Reset filters
+#observeEvent(input$reset, {
+#    updateSelectInput(session, "RaceSelect", selected = c("North Oakland", "Squirrel Hill North", "Squirrel Hill South", "Allentown", "Arlington"))
+#    updateSliderInput(session, "BookingAgeSelect", value = c(min(jail.load$Age.at.Booking, na.rm = T), max(jail.load$Age.at.Booking, na.rm = T)))
+#    updateCheckboxGroupInput(session, "sectorSelect", choices = sort(unique(employ.load$Sector)), selected = NULL)
+#    showNotification("You have successfully reset the filters", type = "message")
+#  })
 ```
 
 Sidebar {.sidebar}
@@ -73,13 +76,6 @@ sliderInput("BookingAgeSelect",
                max = max(jail.load$Age.at.Booking, na.rm = T),
                value = c(min(jail.load$Age.at.Booking, na.rm = T), max(jail.load$Age.at.Booking, na.rm = T)),
                step = 1)
-#Current Age Selecter
-sliderInput("AgeSelect",
-               "Current Age:",
-               min = min(jail.load$Current.Age, na.rm = T),
-               max = max(jail.load$Current.Age, na.rm = T),
-               value = c(min(jail.load$Current.Age, na.rm = T), max(jail.load$Current.Age, na.rm = T)),
-               step = 1)
 #Date Selecter
 dateRangeInput("DateSelect",
                "Date range:",
@@ -88,6 +84,8 @@ dateRangeInput("DateSelect",
                min = "8/6/2018",
                max = "8/31/2018",
                format = "mm/dd/yyyy")
+#Reset Button
+actionButton("reset", "Reset Filters", icon = icon("refresh"))
 ```
 
 General
@@ -211,7 +209,7 @@ renderPlotly({
     dat <- jaInput()
     ggplot(data = dat, aes(x = Date, fill = Race)) + 
       geom_bar(position = "dodge")+
-      scale_fill_manual(values = c("darkslategray", "dodgerblue3", "gold3")) +
+      scale_fill_manual(values = c("darkslategray", "dodgerblue3", "gold3", "red", "chartreuse", "blueviolet", "gray")) +
       labs(x = "Date", title = "Jail Census by Day") +
       guides(color = FALSE)
 })
@@ -226,7 +224,7 @@ renderPlotly({
     dat <- jaInput()
     ggplot(data = dat, aes(x = Age.at.Booking)) + 
       geom_area(stat = "bin", data = dat, aes(fill = Race), position = "stack")+
-      scale_fill_manual(values = c("darkslategray", "dodgerblue3", "gold3")) +
+      scale_fill_manual(values = c("darkslategray", "dodgerblue3", "gold3", "red", "chartreuse", "blueviolet", "gray")) +
       labs(x = "Age at Booking", color = "Race", title = "Age at Booking") +
       guides(color = FALSE)
   })
