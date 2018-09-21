@@ -24,13 +24,13 @@ jail.dirty <- read.csv(file="August_Jail_Census.csv", header = TRUE, sep = ",", 
 pdf(NULL)
 
 #recoding race and gender to be more descriptive
-jail.load <- jail.dirty %>% mutate(Race = recode(Race, "B" = "Black",
-                                  "A" = "Asian",
-                                  "H" = "Hispanic",
+jail.load <- jail.dirty %>% mutate(Race = factor(recode(Race, "B" = "Black",
                                   "W" = "White",
+                                  "H" = "Hispanic",
+                                  "A" = "Asian",
                                   "I" = "American Indian",
                                   "U" = "Unknown",
-                                  "x" = NULL),
+                                  "x" = NULL), levels = c("Black", "White", "Hispanic")),
                     Gender = recode(Gender, "M" = "Male", "F" = "Female"),
                     Date = as.Date(Date),
                     X_id = as.factor(X_id))
@@ -140,7 +140,7 @@ Row {.tabset .tabset-fade}
 renderPlotly({
     dat <- jaInput()
     ggplot(data = dat, aes(x = Date)) + 
-      geom_bar(position = "dodge", fill = "steelblue")+
+      geom_bar(fill = "steelblue")+
       labs(x = "Date", title = "Jail Census by Day") +
       guides(color = FALSE)
 })
@@ -200,20 +200,35 @@ renderValueBox({
 })
 ```
 
-Row 
+Row {.tabset .tabset-fade}
 -------------------------------------
 
+### Daily Jail Census
+
+```{r}
+#Daily count
+renderPlotly({
+    dat <- jaInput()
+    ggplot(data = dat, aes(x = Date, fill = Race)) + 
+      geom_bar(position = "dodge")+
+      scale_fill_manual(values = c("darkslategray", "dodgerblue3", "gold3")) +
+      labs(x = "Date", title = "Jail Census by Day") +
+      guides(color = FALSE)
+})
+
+```
 
 ### Age at Booking
 
 ```{r}
-#plot of age at booking by race
+#plot of age at booking
 renderPlotly({
     dat <- jaInput()
-    ggplot(data = dat, aes(x = Age.at.Booking , fill = Race)) + 
-        geom_histogram()+
-        labs(x = "Age at Booking", title = "Age at Booking per Race") +
-        guides(color = FALSE)
+    ggplot(data = dat, aes(x = Age.at.Booking)) + 
+      geom_area(stat = "bin", data = dat, aes(fill = Race), position = "stack")+
+      scale_fill_manual(values = c("darkslategray", "dodgerblue3", "gold3")) +
+      labs(x = "Age at Booking", color = "Race", title = "Age at Booking") +
+      guides(color = FALSE)
   })
 ```
 
@@ -257,20 +272,21 @@ renderValueBox({
 })
 ```
 
-Row 
+Row {.tabset .tabset-fade}
 -------------------------------------
 
-### Age at Booking
+### Daily Jail Census
 
 ```{r}
-#plot 2
+#Daily count
 renderPlotly({
     dat <- jaInput()
-    ggplot(data = dat, aes(x = Age.at.Booking)) + 
-        geom_area(stat = "bin", aes(fill = dat$Gender), position = position_stack(reverse = T))+
-        labs(x = "Age at Booking", title = "Age at Booking per Gender") +
-        guides(color = FALSE)
+    ggplot(data = dat, aes(x = Date, fill = Gender)) + 
+      geom_bar(position = position_stack(reverse = T))+
+      labs(x = "Date", title = "Jail Census by Day") +
+      guides(color = FALSE)
 })
+
 ```
 
 ### Age at Booking
@@ -280,7 +296,7 @@ renderPlotly({
 renderPlotly({
     dat <- jaInput()
     ggplot(data = dat, aes(x = Age.at.Booking)) + 
-        geom_area(stat = "bin", aes(fill = dat$Gender), position = position_stack(reverse = T))+
+        geom_area(stat = "bin", data = dat, aes(fill = Gender), position = position_stack(reverse = T))+
         labs(x = "Age at Booking", title = "Age at Booking per Gender") +
         guides(color = FALSE)
 })
