@@ -133,23 +133,24 @@ renderValueBox({
 Row {.tabset .tabset-fade}
 -------------------------------------
 
-### Graph 1
+### Age at Booking
 
 ```{r}
 #plot 1
-#renderPlotly({
-#    dat <- jaInput()
-#    ggplot(data = dat, aes(x = Age.at.Booking, y = Race, fill = Race)) + 
-#        geom_point()+
-#        labs(x = "Age.at.Booking", y = "Race", title = "graph 1") +
-#        guides(color = FALSE)
-#  })
+renderPlotly({
+    dat <- jaInput()
+    ggplot(data = dat, aes(x = Age.at.Booking , fill = Race)) + 
+        geom_histogram()+
+        labs(x = "Age at Booking", title = "Age at Booking by Race") +
+        guides(color = FALSE)
+  })
 ```
 
 ### Graph 2
 
 ```{r}
 #plot 2
+
 ```
 
 ### Graph 3
