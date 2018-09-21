@@ -207,7 +207,7 @@ renderValueBox({
 })
 ```
 
-Row {.tabset .tabset-fade}
+Row 
 -------------------------------------
 
 ### Daily Jail Census
@@ -224,6 +224,9 @@ renderPlotly({
 })
 
 ```
+
+Row 
+-------------------------------------
 
 ### Age at Booking
 
@@ -279,7 +282,7 @@ renderValueBox({
 })
 ```
 
-Row {.tabset .tabset-fade}
+Row
 -------------------------------------
 
 ### Daily Jail Census
@@ -295,6 +298,9 @@ renderPlotly({
 })
 
 ```
+
+Row 
+-------------------------------------
 
 ### Age at Booking
 
