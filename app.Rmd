@@ -19,7 +19,7 @@ library(dplyr)
 library(plotly)
 
 #loading data to be used
-jail.dirty <- read.csv(file="August_Jail_Census.csv", header = TRUE, sep = ",")
+jail.dirty <- read.csv(file="August_Jail_Census.csv", header = TRUE, sep = ",", na.strings = "")
 
 pdf(NULL)
 
@@ -29,18 +29,17 @@ jail.load <- jail.dirty %>% mutate(Race = recode(Race, "B" = "Black",
                                   "H" = "Hispanic",
                                   "W" = "White",
                                   "I" = "American Indian",
-                                  "U" = "Unknown"),
+                                  "U" = "Unknown",
+                                  "x" = NULL),
                     Gender = recode(Gender, "M" = "Male", "F" = "Female"))
 
 jaInput <- reactive({
-  jail <- jail.load %>%
-    filter(
-      # Age Filter
-      (Current.Age >= input$AgeSelect[1] & Current.Age <= input$AgeSelect[2]) &
-      # Date Filter
-      (Date >= input$DateSelect[1] & Date <= input$DateSelect[2])  &
-      # Booking Age Filter
-      (Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2]))
+  # Age Filter
+  jail1 <- jail.load %>% filter(Current.Age >= input$AgeSelect[1] & Current.Age <= input$AgeSelect[2]) &
+  # Date Filter
+  jail2 <-  jail1 %>% filter(Date >= input$DateSelect[1] & Date <= input$DateSelect[2])  &
+    # Booking Age Filter
+  jail <- jail2 %>% filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
   # Race Filter
   if (length(input$RaceSelect) > 0 ) {
     jail <- subset(jail, Race %in% input$RaceSelect)
@@ -107,6 +106,7 @@ renderValueBox({
 ### % Men in Jail
 
 ```{r}
+#Guage of gender breakdown
 renderGauge({
   rate <- round((sum(jail.load$Gender == "Male")) / length(jail.load$Gender) * 100, 1)
   gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
@@ -117,7 +117,11 @@ renderGauge({
 ### 
 
 ```{r}
-#valuebox3
+renderValueBox({
+  ja <- jail.load
+  num <- round(mean(ja$Current.Age, na.rm = T), 0)
+  valueBox("Avg Current Age", value = num, color = "green")
+})
 ```
 
 Row {.tabset .tabset-fade}
