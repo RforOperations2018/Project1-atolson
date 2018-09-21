@@ -1,0 +1,12 @@
+name: Allegheny_Jail_Census
+title: Allegheny_Jail_Census
+username:
+account: pa-andrew
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 460598
+bundleId: 1597224
+url: https://pa-andrew.shinyapps.io/Allegheny_Jail_Census/
+when: 1537503099.21918
+asMultiple: FALSE
+asStatic: FALSE
