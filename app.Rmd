@@ -1,6 +1,6 @@
 ---
-title: "Project Title TBD"
-author: "Andrew Olson"
+title: "Allegheny Jail Census"
+author: "by Andrew Olson"
 runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
