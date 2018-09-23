@@ -178,6 +178,7 @@ Row
 ```{r}
 #Average Age at booking value box
 renderValueBox({
+  # Why are these on each page exactly? Shouldn't they just be on the page that makes sense for them?
   ja <- jaInput()
   num <- round(mean(ja$Age.at.Booking, na.rm = T), 0)
   valueBox("Avg Age at Booking", value = num, color = "purple")
@@ -190,6 +191,7 @@ renderValueBox({
 ```{r}
 #Guage of gender breakdown
 renderGauge({
+  # So I'm taking a few off for this not being a separate reactive function that takes all of the filters into account except for the Gender. It's also a bit odd that you have this on every page.
   ja <- jail.load
   rate <- round((sum(ja$Gender == "Male")) / length(ja$Gender) * 100, 1)
   gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
@@ -201,6 +203,7 @@ renderGauge({
 
 ```{r}
 renderValueBox({
+  # See above
   ja <- jail.load
   num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
   valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
