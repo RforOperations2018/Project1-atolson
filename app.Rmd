@@ -52,6 +52,37 @@ jaInput <- reactive({
   return(jail2)
 })
 
+#Reactive function for gender guage
+jaG2Input <- reactive({
+  #Date Filter
+  jail <- jail.load %>%
+    filter(Date >= input$DateSelect[1] & Date <= input$DateSelect[2])
+  # Booking Age Filter
+  jail2 <- jail %>% 
+    filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
+  # Race Filter
+  if (length(input$RaceSelect) > 0 ) {
+    jail2 <- subset(jail2, Race %in% input$RaceSelect)
+  }
+  
+  return(jail2)
+})
+
+#Reactive function for race valuebox
+jaRInput <- reactive({
+  #Date Filter
+  jail <- jail.load %>%
+    filter(Date >= input$DateSelect[1] & Date <= input$DateSelect[2])
+  # Booking Age Filter
+  jail2 <- jail %>% 
+  # Race Filter
+  if (length(input$GenderSelect) > 0 ) {
+      jail2 <- subset(jail2, Gender %in% input$GenderSelect)
+  }
+  
+  return(jail2)
+})
+
 #Reset filters
 observeEvent(input$reset, {
     updateSelectInput(session, "RaceSelect", selected = c("Black", "White"))
