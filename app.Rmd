@@ -48,7 +48,7 @@ jaInput <- reactive({
                                   "U" = "Unknown",
                                   "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
            Date = as.Date(Date),
-           AgeatBooking = )
+           AgeatBooking = as.numeric(AgeatBooking))
 
   # Booking Age Filter
   jail <- jail.load %>% 
@@ -79,7 +79,8 @@ jaGInput <- reactive({
                                   "U" = "Unknown",
                                   "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
            Gender = recode(Gender, "M" = "Male", "F" = "Female"),
-           Date = as.Date(Date))
+           Date = as.Date(Date),
+           AgeatBooking = as.numeric(AgeatBooking))
 
   # Booking Age Filter
   jail <- jail.load %>% 
@@ -107,7 +108,8 @@ jaRInput <- reactive({
                                   "U" = "Unknown",
                                   "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
            Gender = recode(Gender, "M" = "Male", "F" = "Female"),
-           Date = as.Date(Date))
+           Date = as.Date(Date),
+           AgeatBooking = as.numeric(AgeatBooking))
 
   # Booking Age Filter
   jail <- jail.load %>% 
