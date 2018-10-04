@@ -16,80 +16,126 @@ library(shiny)
 library(reshape2)
 library(dplyr)
 library(plotly)
+library(htmltools)
 
-#loading data to be used
-jail.dirty <- read.csv(file="August_Jail_Census.csv", header = TRUE, sep = ",", na.strings = "")
+#Building the WPRDC Get request
+ckanSQL <- function(url) {
+  # Make the Request
+  r <- RETRY("GET", URLencode(url))
+  # Extract Content
+  c <- content(r, "text")
+  # Basic gsub to make NA's consistent with R
+  json <- gsub('NaN', 'NA', c, perl = TRUE)
+  # Create Dataframe
+  data.frame(jsonlite::fromJSON(json)$result$records)
+}
 
-pdf(NULL)
+# Unique values for Race Field
+ckanUniques <- function(id, field) {
+  url <- paste0("http://https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20DISTINCT(%22", field, "%22)%20from%20%22", id, "%22")
+  c(ckanSQL(URLencode(url)))
+}
 
-#recoding race and gender to be more descriptive
-jail.load <- jail.dirty %>% mutate(Race = factor(recode(Race, "B" = "Black",
+races <- sort(c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown"))
+
+jaInput <- reactive({
+  #building API query with date filter
+  url <- paste0("http://https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20Date%2C%20Gender%2C%20Race%2C%20%22Age%20at%20Booking%22%20FROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20Date%20>=%20%27", input$DateSelect[1], "%27%20AND%20Date%20<=%20%27", input$DateSelect[2], "%27")
+  
+  #load and clean data
+  jail.load <- ckanSQL(url) %>%
+    mutate(Race = factor(recode(Race, "B" = "Black",
                                   "W" = "White",
                                   "H" = "Hispanic",
                                   "A" = "Asian",
                                   "I" = "American Indian",
                                   "U" = "Unknown",
                                   "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
-                    Gender = recode(Gender, "M" = "Male", "F" = "Female"),
-                    Date = as.Date(Date),
-                    X_id = as.factor(X_id))
+           Gender = recode(Gender, "M" = "Male", "F" = "Female"),
+           Date = as.Date(Date),
+           Age.at.Booking = 'Age at Booking')
 
-jaInput <- reactive({
-  #Date Filter
-  jail <- jail.load %>%
-    filter(Date >= input$DateSelect[1] & Date <= input$DateSelect[2])
   # Booking Age Filter
-  jail2 <- jail %>% 
+  jail <- jail.load %>% 
     filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
   # Race Filter
   if (length(input$RaceSelect) > 0 ) {
-    jail2 <- subset(jail2, Race %in% input$RaceSelect)
+    jail <- subset(jail, Race %in% input$RaceSelect)
   }
   if (length(input$GenderSelect) > 0 ) {
-      jail2 <- subset(jail2, Gender %in% input$GenderSelect)
+    jail <- subset(jail, Gender %in% input$GenderSelect)
   }
   
-  return(jail2)
+  return(jail)
 })
 
 #Reactive function for gender guage
-jaG2Input <- reactive({
-  #Date Filter
-  jail <- jail.load %>%
-    filter(Date >= input$DateSelect[1] & Date <= input$DateSelect[2])
+jaGInput <- reactive({
+  #building API query with date filter
+  url <- paste0("http://https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20Date%2C%20Gender%2C%20Race%2C%20%22Age%20at%20Booking%22%20FROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20Date%20>=%20%27", input$DateSelect[1], "%27%20AND%20Date%20<=%20%27", input$DateSelect[2], "%27")
+  
+  #load and clean data
+  jail.load <- ckanSQL(url) %>%
+    mutate(Race = factor(recode(Race, "B" = "Black",
+                                  "W" = "White",
+                                  "H" = "Hispanic",
+                                  "A" = "Asian",
+                                  "I" = "American Indian",
+                                  "U" = "Unknown",
+                                  "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
+           Gender = recode(Gender, "M" = "Male", "F" = "Female"),
+           Date = as.Date(Date),
+           Age.at.Booking = 'Age at Booking')
+
   # Booking Age Filter
-  jail2 <- jail %>% 
+  jail <- jail.load %>% 
     filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
   # Race Filter
   if (length(input$RaceSelect) > 0 ) {
-    jail2 <- subset(jail2, Race %in% input$RaceSelect)
+    jail <- subset(jail, Race %in% input$RaceSelect)
   }
   
-  return(jail2)
+  return(jail)
 })
 
 #Reactive function for race valuebox
 jaRInput <- reactive({
-  #Date Filter
-  jail <- jail.load %>%
-    filter(Date >= input$DateSelect[1] & Date <= input$DateSelect[2])
+  #building API query with date filter
+  url <- paste0("http://https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20Date%2C%20Gender%2C%20Race%2C%20%22Age%20at%20Booking%22%20FROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20Date%20>=%20%27", input$DateSelect[1], "%27%20AND%20Date%20<=%20%27", input$DateSelect[2], "%27")
+  
+  #load and clean data
+  jail.load <- ckanSQL(url) %>%
+    mutate(Race = factor(recode(Race, "B" = "Black",
+                                  "W" = "White",
+                                  "H" = "Hispanic",
+                                  "A" = "Asian",
+                                  "I" = "American Indian",
+                                  "U" = "Unknown",
+                                  "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
+           Gender = recode(Gender, "M" = "Male", "F" = "Female"),
+           Date = as.Date(Date),
+           Age.at.Booking = 'Age at Booking')
+
   # Booking Age Filter
-  jail2 <- jail %>% 
+  jail <- jail.load %>% 
     filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
   # Race Filter
+  if (length(input$RaceSelect) > 0 ) {
+    jail <- subset(jail, Race %in% input$RaceSelect)
+  }
   if (length(input$GenderSelect) > 0 ) {
-      jail2 <- subset(jail2, Gender %in% input$GenderSelect)
+    jail <- subset(jail, Gender %in% input$GenderSelect)
   }
   
-  return(jail2)
+  return(jail)
 })
 
 #Reset filters
 observeEvent(input$reset, {
     updateSelectInput(session, "RaceSelect", selected = c("Black", "White"))
-    updateSliderInput(session, "BookingAgeSelect", value = c(min(jail.load$Age.at.Booking, na.rm = T), max(jail.load$Age.at.Booking, na.rm = T)))
-    updateDateRangeInput(session, "DateSelect", start = "8/6/2018", end = "8/21/2018")
-    updateCheckboxGroupInput(session, "GenderSelect", choices = sort(unique(jail.load$Gender)), selected = sort(unique(jail.load$Gender)))
+    updateSliderInput(session, "BookingAgeSelect", value = c(18, 40))
+    updateDateRangeInput(session, "DateSelect", start = Sys.Date()-30, end = Sys.Date())
+    updateCheckboxGroupInput(session, "GenderSelect", choices = c("Male", "Female"), selected = c("Male", "Female"))
     showNotification("You have successfully reset the filters", type = "message")
   })
 ```
@@ -101,7 +147,7 @@ Sidebar {.sidebar}
 #Race Selecter
 selectInput("RaceSelect",
                "Race:",
-               choices = sort(unique(jail.load$Race)),
+               choices = races,
                multiple = TRUE,
                selectize = TRUE,
                selected = c("Black", "White"))
@@ -115,15 +161,13 @@ sliderInput("BookingAgeSelect",
 #Gender Selecter
 checkboxGroupInput("GenderSelect",
                    "Gender:",
-                   choices = sort(unique(jail.load$Gender)),
-                   selected = sort(unique(jail.load$Gender)))
+                   choices = c("Male", "Female"),
+                   selected = c("Male", "Female"))
 #Date Selecter
 dateRangeInput("DateSelect",
                "Date range:",
-               start = "8/6/2018",
-               end = "8/21/2018",
-               min = "8/6/2018",
-               max = "8/31/2018",
+               start = Sys.Date()-30,
+               end = Sys.Date(),
                format = "mm/dd/yyyy")
 #Reset Button
 actionButton("reset", "Reset Filters", icon = icon("refresh"))
@@ -312,6 +356,6 @@ Row
 
 ```{r}
 DT::renderDataTable({
-  subset(jaInput(), select = c(Date, Gender, Race, Age.at.Booking, Current.Age))
+  subset(jaInput(), select = c(Date, Gender, Race, Age.at.Booking))
 })
 ```
