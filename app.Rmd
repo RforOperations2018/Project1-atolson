@@ -31,13 +31,7 @@ ckanSQL <- function(url) {
   data.frame(jsonlite::fromJSON(json)$result$records)
 }
 
-# Unique values for Race Field
-ckanUniques <- function(id, field) {
-  url <- paste0("http://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20DISTINCT(%22", field, "%22)%20from%20%22", id, "%22")
-  c(ckanSQL(URLencode(url)))
-}
-
-races <- sort(c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown"))
+races <- sort(c("Black", "White", "Hispanic", "Asian", "American Indian"))
 
 jaInput <- reactive({
   #building API query with date filter
@@ -45,14 +39,14 @@ jaInput <- reactive({
   
   #load and clean data
   jail.load <- ckanSQL(url) %>%
-    mutate(Race = factor(recode(Race, "B" = "Black",
+    mutate(Gender = recode(Gender, "M" = "Male", "F" = "Female"),
+           Race = factor(recode(Race, "B" = "Black",
                                   "W" = "White",
                                   "H" = "Hispanic",
                                   "A" = "Asian",
                                   "I" = "American Indian",
                                   "U" = "Unknown",
                                   "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
-           Gender = recode(Gender, "M" = "Male", "F" = "Female"),
            Date = as.Date(Date),
            Age.at.Booking = 'Age at Booking')
 
@@ -206,11 +200,11 @@ renderGauge({
 ### 
 
 ```{r}
-renderValueBox({
-  ja <- jaRInput()
-  num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
-  valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
-})
+# renderValueBox({
+#   ja <- jaRInput()
+#   num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
+#   valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
+# })
 ```
 
 Row {.tabset .tabset-fade}
@@ -269,13 +263,12 @@ Row
 #Daily count
 renderPlotly({
     dat <- jaInput()
-    ggplot(data = dat, aes(x = Date, fill = Race)) + 
+    ggplot(data = dat, aes(x = Date, fill = Race)) +
       geom_bar(position = "dodge")+
       scale_fill_manual(values = c("darkslategray", "dodgerblue3", "gold3", "red", "chartreuse", "blueviolet", "gray")) +
       labs(x = "Date", title = "Jail Census by Day") +
       guides(color = FALSE)
 })
-
 ```
 
 Row 
@@ -287,7 +280,7 @@ Row
 #plot of age at booking
 renderPlotly({
     dat <- jaInput()
-    ggplot(data = dat, aes(x = Age.at.Booking)) + 
+    ggplot(data = dat, aes(x = Age.at.Booking)) +
       geom_area(stat = "bin", data = dat, aes(fill = Race), position = "stack")+
       scale_fill_manual(values = c("darkslategray", "dodgerblue3", "gold3", "red", "chartreuse", "blueviolet", "gray")) +
       labs(x = "Age at Booking", color = "Race", title = "Age at Booking") +
