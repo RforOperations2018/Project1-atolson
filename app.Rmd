@@ -51,6 +51,8 @@ JailInput <- reactive({
            Date = as.Date(Date),
            AgeatBooking = as.numeric(AgeatBooking))
 })
+
+#Main reactive function for app
 jaInput <- reactive({
   # Booking Age Filter
   jail <- JailInput() %>% 
