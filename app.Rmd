@@ -101,7 +101,7 @@ jaGInput <- reactive({
 #Reactive function for race valuebox
 jaRInput <- reactive({
   #building API query with date filter
-  url <- paste0("http://https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20Date%2C%20Gender%2C%20Race%2C%20%22Age%20at%20Booking%22%20FROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20Date%20>=%20%27", input$DateSelect[1], "%27%20AND%20Date%20<=%20%27", input$DateSelect[2], "%27")
+  url <- paste0("http://https://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20Date%2C%20Gender%2C%20Race%2C%20%22Age%20at%20Booking%22%20AS%20Age%2Eat%2EBookingFROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20Date%20>=%20%27", input$DateSelect[1], "%27%20AND%20Date%20<=%20%27", input$DateSelect[2], "%27")
   
   #load and clean data
   jail.load <- ckanSQL(url) %>%
@@ -113,8 +113,7 @@ jaRInput <- reactive({
                                   "U" = "Unknown",
                                   "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
            Gender = recode(Gender, "M" = "Male", "F" = "Female"),
-           Date = as.Date(Date),
-           Age.at.Booking = 'Age at Booking')
+           Date = as.Date(Date))
 
   # Booking Age Filter
   jail <- jail.load %>% 
@@ -154,9 +153,9 @@ selectInput("RaceSelect",
 #Booking Age Selecter
 sliderInput("BookingAgeSelect",
                "Age at Booking:",
-               min = min(jail.load$Age.at.Booking, na.rm = T),
-               max = max(jail.load$Age.at.Booking, na.rm = T),
-               value = c(min(jail.load$Age.at.Booking, na.rm = T), max(jail.load$Age.at.Booking, na.rm = T)),
+               min = 14,
+               max = 90,
+               value = c(18, 40),
                step = 1)
 #Gender Selecter
 checkboxGroupInput("GenderSelect",
@@ -306,7 +305,7 @@ Row
 ```{r}
 #Guage of gender breakdown
 renderGauge({
-  ja <- jail.load
+  ja <- jaGInput()
   rate <- round((sum(ja$Gender == "Male")) / length(ja$Gender) * 100, 1)
   gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
   success = c(70, 100), warning = c(40, 69), danger = c(0, 30), colors = c("aqua", "green", "fuchsia")))
