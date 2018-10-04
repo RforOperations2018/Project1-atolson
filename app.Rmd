@@ -17,6 +17,7 @@ library(reshape2)
 library(dplyr)
 library(plotly)
 library(htmltools)
+library(httr)
 
 #Building the WPRDC Get request
 ckanSQL <- function(url) {
@@ -195,7 +196,7 @@ renderValueBox({
 ```{r}
 #Guage of gender breakdown
 renderGauge({
-  ja <- jaG2Input()
+  ja <- jaGInput()
   rate <- round((sum(ja$Gender == "Male")) / length(ja$Gender) * 100, 1)
   gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
   success = c(70, 100), warning = c(40, 69), danger = c(0, 30), colors = c("aqua", "green", "fuchsia")))
