@@ -35,7 +35,7 @@ races <- sort(c("Black", "White", "Hispanic", "Asian", "American Indian"))
 
 jaInput <- reactive({
   #building API query with date filter
-  url <- paste0("http://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20Date%2C%20Gender%2C%20Race%2C%20%22Age%20at%20Booking%22%20FROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20Date%20>=%20%27", input$DateSelect[1], "%27%20AND%20Date%20<=%20%27", input$DateSelect[2], "%27")
+  url <-paste0("http://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20%22Date%22%2C%20%22Gender%22%2C%20%22Race%22%2C%20%22Age%20at%20Booking%22%20AS%20%22AgeatBooking%22%20FROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20%22Date%22%20%3E=%20%27", input$DateSelect[1], "%27%20AND%20%22Date%22%20%3C=%20%27", input$DateSelect[2], "%27")
   
   #load and clean data
   jail.load <- ckanSQL(url) %>%
@@ -48,11 +48,11 @@ jaInput <- reactive({
                                   "U" = "Unknown",
                                   "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
            Date = as.Date(Date),
-           Age.at.Booking = 'Age at Booking')
+           AgeatBooking = )
 
   # Booking Age Filter
   jail <- jail.load %>% 
-    filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
+    filter(AgeatBooking >= input$BookingAgeSelect[1] & AgeatBooking <= input$BookingAgeSelect[2])
   # Race Filter
   if (length(input$RaceSelect) > 0 ) {
     jail <- subset(jail, Race %in% input$RaceSelect)
@@ -67,36 +67,7 @@ jaInput <- reactive({
 #Reactive function for gender guage
 jaGInput <- reactive({
   #building API query with date filter
-  url <- paste0("http://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20Date%2C%20Gender%2C%20Race%2C%20%22Age%20at%20Booking%22%20FROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20Date%20>=%20%27", input$DateSelect[1], "%27%20AND%20Date%20<=%20%27", input$DateSelect[2], "%27")
-  
-  #load and clean data
-  jail.load <- ckanSQL(url) %>%
-    mutate(Race = factor(recode(Race, "B" = "Black",
-                                  "W" = "White",
-                                  "H" = "Hispanic",
-                                  "A" = "Asian",
-                                  "I" = "American Indian",
-                                  "U" = "Unknown",
-                                  "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
-           Gender = recode(Gender, "M" = "Male", "F" = "Female"),
-           Date = as.Date(Date),
-           Age.at.Booking = 'Age at Booking')
-
-  # Booking Age Filter
-  jail <- jail.load %>% 
-    filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
-  # Race Filter
-  if (length(input$RaceSelect) > 0 ) {
-    jail <- subset(jail, Race %in% input$RaceSelect)
-  }
-  
-  return(jail)
-})
-
-#Reactive function for race valuebox
-jaRInput <- reactive({
-  #building API query with date filter
-  url <- paste0("http://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20Date%2C%20Gender%2C%20Race%2C%20%22Age%20at%20Booking%22%20AS%20Age%2Eat%2EBookingFROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20Date%20>=%20%27", input$DateSelect[1], "%27%20AND%20Date%20<=%20%27", input$DateSelect[2], "%27")
+  url <-paste0("http://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20%22Date%22%2C%20%22Gender%22%2C%20%22Race%22%2C%20%22Age%20at%20Booking%22%20AS%20%22AgeatBooking%22%20FROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20%22Date%22%20%3E=%20%27", input$DateSelect[1], "%27%20AND%20%22Date%22%20%3C=%20%27", input$DateSelect[2], "%27")
   
   #load and clean data
   jail.load <- ckanSQL(url) %>%
@@ -112,7 +83,35 @@ jaRInput <- reactive({
 
   # Booking Age Filter
   jail <- jail.load %>% 
-    filter(Age.at.Booking >= input$BookingAgeSelect[1] & Age.at.Booking <= input$BookingAgeSelect[2])
+    filter(AgeatBooking >= input$BookingAgeSelect[1] & AgeatBooking <= input$BookingAgeSelect[2])
+  # Race Filter
+  if (length(input$RaceSelect) > 0 ) {
+    jail <- subset(jail, Race %in% input$RaceSelect)
+  }
+  
+  return(jail)
+})
+
+#Reactive function for race valuebox
+jaRInput <- reactive({
+  #building API query with date filter
+  url <-paste0("http://data.wprdc.org/api/3/action/datastore_search_sql?sql=SELECT%20%22Date%22%2C%20%22Gender%22%2C%20%22Race%22%2C%20%22Age%20at%20Booking%22%20AS%20%22AgeatBooking%22%20FROM%20%2266cdcd57-6c92-4aaa-8800-0ed9d8f03e22%22%20WHERE%20%22Date%22%20%3E=%20%27", input$DateSelect[1], "%27%20AND%20%22Date%22%20%3C=%20%27", input$DateSelect[2], "%27")
+  
+  #load and clean data
+  jail.load <- ckanSQL(url) %>%
+    mutate(Race = factor(recode(Race, "B" = "Black",
+                                  "W" = "White",
+                                  "H" = "Hispanic",
+                                  "A" = "Asian",
+                                  "I" = "American Indian",
+                                  "U" = "Unknown",
+                                  "x" = NULL), levels = c("Black", "White", "Hispanic", "Asian", "American Indian", "Unknown")),
+           Gender = recode(Gender, "M" = "Male", "F" = "Female"),
+           Date = as.Date(Date))
+
+  # Booking Age Filter
+  jail <- jail.load %>% 
+    filter(AgeatBooking >= input$BookingAgeSelect[1] & AgeatBooking <= input$BookingAgeSelect[2])
   # Race Filter
   if (length(input$RaceSelect) > 0 ) {
     jail <- subset(jail, Race %in% input$RaceSelect)
@@ -179,7 +178,7 @@ Row
 #Average Age at booking value box
 renderValueBox({
   ja <- jaInput()
-  num <- round(mean(ja$Age.at.Booking, na.rm = T), 0)
+  num <- round(mean(ja$AgeatBooking, na.rm = T), 0)
   valueBox("Avg Age at Booking", value = num, color = "purple")
 })
 ```
@@ -200,11 +199,11 @@ renderGauge({
 ### 
 
 ```{r}
-# renderValueBox({
-#   ja <- jaRInput()
-#   num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
-#   valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
-# })
+renderValueBox({
+  ja <- jaRInput()
+  num <- round((sum(ja$Race == "White", na.rm = TRUE) / sum(ja$Race == "Black", na.rm = TRUE)), 2)
+  valueBox("Ratio of White to Black Prisoners", value = num, color = "green")
+})
 ```
 
 Row {.tabset .tabset-fade}
@@ -230,7 +229,7 @@ renderPlotly({
 #plot of age at booking
 renderPlotly({
     dat <- jaInput()
-    ggplot(data = dat, aes(x = Age.at.Booking)) + 
+    ggplot(data = dat, aes(x = AgeatBooking)) + 
         geom_histogram(fill = "forestgreen")+
         labs(x = "Age at Booking", title = "Age at Booking") +
         guides(color = FALSE)
@@ -280,7 +279,7 @@ Row
 #plot of age at booking
 renderPlotly({
     dat <- jaInput()
-    ggplot(data = dat, aes(x = Age.at.Booking)) +
+    ggplot(data = dat, aes(x = AgeatBooking)) +
       geom_area(stat = "bin", data = dat, aes(fill = Race), position = "stack")+
       scale_fill_manual(values = c("darkslategray", "dodgerblue3", "gold3", "red", "chartreuse", "blueviolet", "gray")) +
       labs(x = "Age at Booking", color = "Race", title = "Age at Booking") +
@@ -332,7 +331,7 @@ Row
 #plot 2
 renderPlotly({
     dat <- jaInput()
-    ggplot(data = dat, aes(x = Age.at.Booking)) + 
+    ggplot(data = dat, aes(x = AgeatBooking)) + 
         geom_area(stat = "bin", data = dat, aes(fill = Gender), position = position_stack(reverse = T))+
         labs(x = "Age at Booking", title = "Age at Booking per Gender") +
         guides(color = FALSE)
@@ -349,6 +348,6 @@ Row
 
 ```{r}
 DT::renderDataTable({
-  subset(jaInput(), select = c(Date, Gender, Race, Age.at.Booking))
+  subset(jaInput(), select = c(Date, Gender, Race, AgeatBooking))
 })
 ```
