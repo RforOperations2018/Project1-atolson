@@ -58,6 +58,7 @@ jaInput <- reactive({
   jail <- JailInput() %>% 
     filter(AgeatBooking >= input$BookingAgeSelect[1] & AgeatBooking <= input$BookingAgeSelect[2])
   # Race Filter
+  # FYI you can build IN statements in SQL as well
   if (length(input$RaceSelect) > 0 ) {
     jail <- subset(jail, Race %in% input$RaceSelect)
   }
